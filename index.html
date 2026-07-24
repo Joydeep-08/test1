@@ -111,7 +111,7 @@
   }
   .inp:focus { border-color: #b83b5e; }
 
-  /* GIFT FLIP */
+  /* GIFT FLIP (kept for potential future use elsewhere) */
   .gift-inner { transition: transform 0.5s; transform-style: preserve-3d; }
   .gift-front, .gift-back { backface-visibility: hidden; -webkit-backface-visibility: hidden; }
   .gift-back { transform: rotateY(180deg); }
@@ -134,6 +134,39 @@
     animation: shimmer 2s linear infinite;
     font-weight: 700;
   }
+
+  /* ══════════════════════════════
+     BALLOON POP — replaces the old flip-card gifts grid
+  ══════════════════════════════ */
+  @keyframes balSway   { 0%,100%{ transform: rotate(-4deg) translateY(0); } 50%{ transform: rotate(4deg) translateY(-14px); } }
+  @keyframes spkFly    { 0%{ transform: translate(0,0) scale(1); opacity:1; } 100%{ transform: translate(var(--dx),var(--dy)) scale(0); opacity:0; } }
+  @keyframes popAnim   { 0%{ opacity:1; transform: scale(1); } 20%{ opacity:1; transform: scale(1.4) rotate(8deg); } 55%{ opacity:.2; transform: scale(.15) rotate(-20deg); } 100%{ opacity:0; transform: scale(0); } }
+  @keyframes polIn     { from{ opacity:0; transform: rotate(var(--tilt,0deg)) scale(.4) translateY(40px); } to{ opacity:1; transform: rotate(var(--tilt,0deg)) scale(1) translateY(0); } }
+  @keyframes openedPop { 0%{ transform: scale(.7); opacity:0; } 60%{ transform: scale(1.08); opacity:1; } 100%{ transform: scale(1); } }
+
+  .bal-shell        { position: relative; overflow: hidden; }
+  .bal-decor        { position:absolute; inset:0; pointer-events:none; z-index:0; opacity:.5; }
+  .bal-progress     { font-family:'Inter',sans-serif; font-size:11px; font-weight:600; letter-spacing:.14em; text-transform:uppercase; color:#b8718a; margin-bottom:22px; position:relative; z-index:1; }
+  .bal-field        { display:flex; flex-wrap:wrap; justify-content:center; align-items:flex-end; gap:26px 30px; padding:8px 4px 6px; position:relative; z-index:1; min-height: 210px; }
+
+  .bal-wrap         { display:flex; flex-direction:column; align-items:center; cursor:pointer; user-select:none; animation: balSway ease-in-out infinite; transition: filter .18s; }
+  .bal-wrap:hover   { filter: brightness(1.08) drop-shadow(0 8px 18px rgba(184,59,94,.28)); }
+  .bal-wrap svg     { width:76px; height:auto; display:block; }
+  .bal-string       { width:1px; height:44px; margin:0 auto; background: linear-gradient(to bottom, rgba(90,31,51,.35), rgba(90,31,51,.04)); }
+  .bal-wrap.popped  { animation: popAnim .5s cubic-bezier(.4,0,.6,1) forwards; pointer-events:none; }
+
+  .bal-opened       { display:flex; flex-direction:column; align-items:center; gap:6px; cursor:pointer; animation: openedPop .4s cubic-bezier(.34,1.4,.64,1) both; opacity:.9; transition: opacity .18s; }
+  .bal-opened:hover { opacity:1; }
+  .bal-opened .em   { font-size:34px; filter: drop-shadow(0 3px 6px rgba(184,59,94,.2)); }
+  .bal-opened .lbl  { font-family:'Inter',sans-serif; font-size:9.5px; font-weight:600; letter-spacing:.14em; text-transform:uppercase; color:#cda5ae; }
+
+  .spk              { position:fixed; pointer-events:none; z-index:2000; border-radius:50%; animation: spkFly .7s ease-out forwards; }
+
+  .bal-reveal-bg    { position:fixed; inset:0; background:rgba(58,15,26,.55); z-index:3000; display:flex; align-items:center; justify-content:center; padding:20px; opacity:0; pointer-events:none; transition: opacity .25s; backdrop-filter: blur(6px); }
+  .bal-reveal-bg.show { opacity:1; pointer-events:all; }
+  .bal-poly         { background:#fffaf9; padding:30px 26px 26px; border-radius:18px; max-width:300px; width:88vw; box-shadow:0 24px 70px rgba(58,15,26,.4); text-align:center; transform: rotate(var(--tilt,0deg)); animation: polIn .5s cubic-bezier(.34,1.5,.64,1); border:1.5px solid #f0c4ce; }
+  .bal-poly .emo    { font-size:50px; margin-bottom:12px; }
+  .bal-msg          { font-family:'Caveat',cursive; font-size:22px; color:#5a1f33; line-height:1.5; margin-bottom:20px; }
 
   /* LOADING SCREEN */
   #pg-loading {
@@ -295,6 +328,66 @@ let state = {
   recipient: '', sender: '', greeting: '', song: '', letter: '',
   finalAmount: CONFIG.BASE, couponApplied: null, shareUrl: null,
 };
+
+/* ══════════════════════════════
+   BALLOON POP — shared, stateless helpers
+   (color palette matches the card's rose/blush theme)
+══════════════════════════════ */
+const BAL_PALS = [
+  { b:'#e0607e', s:'#f8c9d4', d:'#b83b5e' },
+  { b:'#f06595', s:'#fbd6e0', d:'#c2255c' },
+  { b:'#d6336c', s:'#f4a8bd', d:'#8f1f45' },
+  { b:'#f582ae', s:'#fde0ea', d:'#d6336c' },
+  { b:'#c2255c', s:'#f0a3bb', d:'#7a1638' },
+];
+const SPK_COLORS = ['#f8a5c2', '#e0607e', '#d6336c', '#b83b5e', '#f06595', '#ffd9e6'];
+
+function balloonSVG(pal, idx) {
+  const gid = 'balGrad' + idx;
+  return `<svg viewBox="0 0 100 130" xmlns="http://www.w3.org/2000/svg">
+    <defs><radialGradient id="${gid}" cx="38%" cy="30%" r="66%">
+      <stop offset="0%" stop-color="${pal.s}"/>
+      <stop offset="55%" stop-color="${pal.b}"/>
+      <stop offset="100%" stop-color="${pal.d}"/>
+    </radialGradient></defs>
+    <ellipse cx="50" cy="52" rx="38" ry="44" fill="url(#${gid})"/>
+    <ellipse cx="35" cy="34" rx="11" ry="8" fill="rgba(255,255,255,.42)" transform="rotate(-25 35 34)"/>
+    <ellipse cx="40" cy="28" rx="5" ry="3.5" fill="rgba(255,255,255,.6)" transform="rotate(-20 40 28)"/>
+    <polygon points="50,93 44,100 56,100" fill="${pal.d}"/>
+  </svg>`;
+}
+
+function balloonSpark(x, y) {
+  for (let i = 0; i < 20; i++) {
+    const el  = document.createElement('div');
+    const ang = Math.random() * 360;
+    const d   = 50 + Math.random() * 90;
+    el.className = 'spk';
+    el.style.cssText = `left:${x}px;top:${y}px;background:${SPK_COLORS[Math.floor(Math.random()*SPK_COLORS.length)]};width:${4+Math.random()*5}px;height:${4+Math.random()*5}px;--dx:${Math.cos(ang*Math.PI/180)*d}px;--dy:${Math.sin(ang*Math.PI/180)*d}px;animation-duration:${0.45+Math.random()*0.4}s;`;
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 900);
+  }
+}
+
+function balloonPopSound() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const buf = ctx.createBuffer(1, ctx.sampleRate * 0.18, ctx.sampleRate);
+    const d   = buf.getChannelData(0);
+    for (let i = 0; i < d.length; i++) {
+      const t = i / ctx.sampleRate;
+      d[i] = Math.sin(2*Math.PI*95*t)*Math.exp(-t*20)
+           + Math.sin(2*Math.PI*48*t)*Math.exp(-t*13)*0.6
+           + (Math.random()*2-1)*Math.exp(-t*26)*0.12;
+    }
+    const src  = ctx.createBufferSource();
+    src.buffer = buf;
+    const gain = ctx.createGain();
+    gain.gain.setValueAtTime(1, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.18);
+    src.connect(gain); gain.connect(ctx.destination); src.start();
+  } catch (e) {}
+}
 
 /* ── PAGE ROUTER ── */
 function showLoading() {
@@ -559,11 +652,11 @@ function renderCardInto(mountId, data) {
   const mount = document.getElementById(mountId);
   if (!mount) return;
 
-  let cardPage     = 'landing';
-  let activeTab    = 'greetings';
-  let flippedGifts = new Set();
+  let cardPage      = 'landing';
+  let activeTab     = 'greetings';
+  let poppedBalloons = new Set();
 
-  const TAB_LABELS = { greetings: 'Greetings', gifts: 'Gifts', flowers: 'Bouquet', letter: 'Letter' };
+  const TAB_LABELS = { greetings: 'Greetings', balloons: 'Balloons', flowers: 'Bouquet', letter: 'Letter' };
 
   const flowers = [
     { e:'🌹', n:'Red Rose',       m:`"You're as beautiful as freshly bloomed roses, ${data.recipient}."` },
@@ -571,11 +664,14 @@ function renderCardInto(mountId, data) {
     { e:'🌸', n:'Cherry Blossom', m:`"Being around you feels like walking through a blooming spring."` },
     { e:'💐', n:'Grand Bouquet',  m:`"This whole bouquet couldn't hold all the good things I think of you, ${data.recipient}."` },
   ];
-  const gifts = [
-    { e:'🎁', r:'🌙', msg:'A night under the stars, just for the two of us.' },
-    { e:'🎀', r:'☕', msg:'Your favourite drink, your favourite book, a perfect afternoon.' },
-    { e:'💝', r:'🫂', msg:'A thousand hugs, redeemable anytime, forever.' },
-    { e:'✨', r:'🗺️', msg:'One surprise date — destination chosen by you.' },
+
+  // Each balloon hides a little truth — pop it to reveal the note inside.
+  const balloons = [
+    { e:'🌙', msg:`Being with you feels like the best kind of luck, ${data.recipient}.` },
+    { e:'☕', msg:'Every little moment with you turns into my favourite memory.' },
+    { e:'🫂', msg:'You have this way of making ordinary days feel like something worth celebrating.' },
+    { e:'🗺️', msg:'I fall for you a little more, every single day.' },
+    { e:'✨', msg:`Here's to us, ${data.recipient} — and every chapter still to come.` },
   ];
 
   function re() { mount.innerHTML = ''; render(); }
@@ -691,7 +787,7 @@ function renderCardInto(mountId, data) {
     mount.innerHTML = `
     <div style="min-height:100vh;background:#fdf2f4">
       <nav class="tab-nav">
-        ${['greetings','gifts','flowers','letter'].map(t =>
+        ${['greetings','balloons','flowers','letter'].map(t =>
           `<button class="tab-btn ${activeTab===t?'active':''}" onclick="switchTab('${t}')">${TAB_LABELS[t]}</button>`
         ).join('')}
       </nav>
@@ -710,21 +806,15 @@ function renderCardInto(mountId, data) {
           </div>
         </div>
 
-        <!-- GIFTS -->
-        <div id="sec-gifts" style="display:${activeTab==='gifts'?'grid':'none'};grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px" class="fade-in">
-          ${gifts.map((g,i) => `
-          <div style="perspective:600px;min-height:160px;cursor:pointer" onclick="flipGift(${i})">
-            <div id="gift-inner-${i}" class="gift-inner" style="position:relative;min-height:160px">
-              <div class="gift-front card" style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px 16px;text-align:center;border-radius:14px">
-                <span style="font-size:44px;display:block;margin-bottom:10px">${g.e}</span>
-                <div class="font-dancing" style="font-size:20px;color:#1a0f0a">Tap to open!</div>
-              </div>
-              <div class="gift-back card" style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;text-align:center;border-radius:14px">
-                <span style="font-size:36px;margin-bottom:10px">${g.r}</span>
-                <p class="font-caveat" style="font-size:16px;color:#5a1f33;line-height:1.5">${g.msg}</p>
-              </div>
-            </div>
-          </div>`).join('')}
+        <!-- BALLOONS -->
+        <div id="sec-balloons" style="display:${activeTab==='balloons'?'block':'none'}" class="fade-in">
+          <div class="card bal-shell p-8 text-center">
+            <div style="position:absolute;left:-10px;top:-10px;font-size:70px;opacity:.06;pointer-events:none">🎈</div>
+            <div style="position:absolute;right:-6px;bottom:-14px;font-size:60px;opacity:.06;pointer-events:none;transform:scaleX(-1)">🎈</div>
+            <div class="font-dancing" style="font-size:34px;color:#1a0f0a;margin-bottom:4px;position:relative;z-index:1">Pop Every Balloon</div>
+            <div class="bal-progress" id="bal-progress-label"></div>
+            <div class="bal-field" id="bal-field"></div>
+          </div>
         </div>
 
         <!-- BOUQUET -->
@@ -766,23 +856,86 @@ ${data.letter||'You are someone truly special. I love you.'}
         </div>
 
       </div>
+    </div>
+
+    <!-- BALLOON REVEAL OVERLAY -->
+    <div class="bal-reveal-bg" id="bal-reveal-bg" onclick="if(event.target===this) closeBalReveal()">
+      <div class="bal-poly" id="bal-poly">
+        <div class="emo" id="bal-poly-emo"></div>
+        <div class="bal-msg" id="bal-poly-msg"></div>
+        <button class="btn-primary" onclick="closeBalReveal()">Close</button>
+      </div>
     </div>`;
 
     bindCardNav();
-    flippedGifts.forEach(i => {
-      const el = document.getElementById(`gift-inner-${i}`);
-      if (el) el.style.transform = 'rotateY(180deg)';
+    renderBalloonField();
+  }
+
+  /* ── BALLOON FIELD ── */
+  function renderBalloonField() {
+    const field = document.getElementById('bal-field');
+    const label = document.getElementById('bal-progress-label');
+    if (!field) return;
+
+    field.innerHTML = '';
+    const remaining = balloons.length - poppedBalloons.size;
+    if (label) {
+      label.textContent = remaining === 0
+        ? 'All popped 🎊 — every truth is out'
+        : (remaining === balloons.length ? 'Tap each one for a little truth about you' : remaining + ' left to pop');
+    }
+
+    balloons.forEach((b, i) => {
+      const wrap = document.createElement('div');
+      if (poppedBalloons.has(i)) {
+        wrap.className = 'bal-opened';
+        wrap.innerHTML = `<div class="em">${b.e}</div><div class="lbl">Opened</div>`;
+        wrap.onclick = () => openBalReveal(i);
+      } else {
+        wrap.className = 'bal-wrap';
+        wrap.style.animationDelay  = (Math.random() * 2).toFixed(2) + 's';
+        wrap.style.animationDuration = (3.4 + Math.random() * 1.6).toFixed(2) + 's';
+        wrap.innerHTML = `${balloonSVG(BAL_PALS[i % BAL_PALS.length], i)}<div class="bal-string"></div>`;
+        wrap.onclick = () => popBalloon(i, wrap);
+      }
+      field.appendChild(wrap);
     });
   }
 
+  function popBalloon(i, wrapEl) {
+    if (poppedBalloons.has(i)) return;
+    poppedBalloons.add(i);
+    wrapEl.classList.add('popped');
+    const rect = wrapEl.getBoundingClientRect();
+    balloonSpark(rect.left + rect.width / 2, rect.top + rect.height / 3);
+    balloonPopSound();
+    setTimeout(() => {
+      renderBalloonField();
+      openBalReveal(i);
+    }, 320);
+  }
+
+  function openBalReveal(i) {
+    const b = balloons[i];
+    const emoEl = document.getElementById('bal-poly-emo');
+    const msgEl = document.getElementById('bal-poly-msg');
+    const cardEl = document.getElementById('bal-poly');
+    if (!emoEl || !msgEl || !cardEl) return;
+    emoEl.textContent = b.e;
+    msgEl.textContent = b.msg;
+    cardEl.style.setProperty('--tilt', (i % 2 === 0 ? -3 : 3) + 'deg');
+    document.getElementById('bal-reveal-bg').classList.add('show');
+  }
+
+  function closeBalRevealImpl() {
+    const el = document.getElementById('bal-reveal-bg');
+    if (el) el.classList.remove('show');
+  }
+
   function bindCardNav() {
-    window.cardNav   = (p) => { cardPage = p; re(); };
-    window.switchTab = (t) => { activeTab = t; re(); };
-    window.flipGift  = (i) => {
-      flippedGifts.has(i) ? flippedGifts.delete(i) : flippedGifts.add(i);
-      const el = document.getElementById(`gift-inner-${i}`);
-      if (el) el.style.transform = flippedGifts.has(i) ? 'rotateY(180deg)' : '';
-    };
+    window.cardNav       = (p) => { cardPage = p; re(); };
+    window.switchTab     = (t) => { activeTab = t; re(); };
+    window.closeBalReveal = closeBalRevealImpl;
   }
 
   render();
