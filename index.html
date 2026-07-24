@@ -563,6 +563,8 @@ function renderCardInto(mountId, data) {
   let activeTab    = 'greetings';
   let flippedGifts = new Set();
 
+  const TAB_LABELS = { greetings: 'Greetings', gifts: 'Gifts', flowers: 'Bouquet', letter: 'Letter' };
+
   const flowers = [
     { e:'🌹', n:'Red Rose',       m:`"You're as beautiful as freshly bloomed roses, ${data.recipient}."` },
     { e:'🌷', n:'Tulip',          m:`"Spending time with you is like receiving a surprise bouquet every day."` },
@@ -632,39 +634,6 @@ function renderCardInto(mountId, data) {
     </g>
   </svg>`;
 
-  const bouquetSVG = `<svg width="220" height="260" viewBox="0 0 220 260" xmlns="http://www.w3.org/2000/svg">
-    <path d="M70 260 L110 140 L150 260 Z" fill="#fdf2f4" stroke="#f0c4ce" stroke-width="2"/>
-    <path d="M85 260 L110 150 L135 260 Z" fill="#f8c9d4" opacity="0.6"/>
-    <line x1="110" y1="150" x2="75" y2="70" stroke="#7a9a5a" stroke-width="3" stroke-linecap="round"/>
-    <line x1="110" y1="150" x2="110" y2="55" stroke="#7a9a5a" stroke-width="3" stroke-linecap="round"/>
-    <line x1="110" y1="150" x2="145" y2="70" stroke="#7a9a5a" stroke-width="3" stroke-linecap="round"/>
-    <line x1="110" y1="150" x2="55" y2="100" stroke="#7a9a5a" stroke-width="3" stroke-linecap="round"/>
-    <line x1="110" y1="150" x2="165" y2="100" stroke="#7a9a5a" stroke-width="3" stroke-linecap="round"/>
-    <ellipse cx="60" cy="120" rx="20" ry="10" fill="#9bd86a" transform="rotate(-30 60 120)"/>
-    <ellipse cx="160" cy="120" rx="20" ry="10" fill="#9bd86a" transform="rotate(30 160 120)"/>
-    <g transform="translate(75,70)"><circle r="26" fill="#d6336c" opacity="0.9"/><circle r="16" fill="#f06595"/>
-      <ellipse rx="12" ry="18" fill="#d6336c" transform="rotate(-25)"/><ellipse rx="12" ry="18" fill="#d6336c" transform="rotate(25)"/>
-      <ellipse rx="12" ry="18" fill="#d6336c" transform="rotate(115)"/><ellipse rx="12" ry="18" fill="#d6336c" transform="rotate(155)"/>
-      <circle r="8" fill="#ffd43b"/></g>
-    <g transform="translate(110,55)"><circle r="32" fill="#b83b5e"/><circle r="20" fill="#e0607e"/>
-      <ellipse rx="15" ry="24" fill="#b83b5e" transform="rotate(-25)"/><ellipse rx="15" ry="24" fill="#b83b5e" transform="rotate(25)"/>
-      <ellipse rx="15" ry="24" fill="#b83b5e" transform="rotate(115)"/><ellipse rx="15" ry="24" fill="#b83b5e" transform="rotate(155)"/>
-      <circle r="10" fill="#ffe066"/></g>
-    <g transform="translate(145,70)"><circle r="26" fill="#d6336c" opacity="0.9"/><circle r="16" fill="#f06595"/>
-      <ellipse rx="12" ry="18" fill="#d6336c" transform="rotate(-25)"/><ellipse rx="12" ry="18" fill="#d6336c" transform="rotate(25)"/>
-      <ellipse rx="12" ry="18" fill="#d6336c" transform="rotate(115)"/><ellipse rx="12" ry="18" fill="#d6336c" transform="rotate(155)"/>
-      <circle r="8" fill="#ffd43b"/></g>
-    <g transform="translate(55,100)"><circle r="18" fill="#f8c9d4"/>
-      <ellipse rx="9" ry="14" fill="#f8c9d4" transform="rotate(-20)"/><ellipse rx="9" ry="14" fill="#f8c9d4" transform="rotate(20)"/>
-      <ellipse rx="9" ry="14" fill="#f8c9d4" transform="rotate(110)"/><ellipse rx="9" ry="14" fill="#f8c9d4" transform="rotate(150)"/>
-      <circle r="6" fill="#ffe066"/></g>
-    <g transform="translate(165,100)"><circle r="18" fill="#f8c9d4"/>
-      <ellipse rx="9" ry="14" fill="#f8c9d4" transform="rotate(-20)"/><ellipse rx="9" ry="14" fill="#f8c9d4" transform="rotate(20)"/>
-      <ellipse rx="9" ry="14" fill="#f8c9d4" transform="rotate(110)"/><ellipse rx="9" ry="14" fill="#f8c9d4" transform="rotate(150)"/>
-      <circle r="6" fill="#ffe066"/></g>
-    <path d="M95 155 Q110 175 125 155" fill="none" stroke="#b83b5e" stroke-width="4" stroke-linecap="round"/>
-  </svg>`;
-
   function catHTML(crying = false) {
     const gifUrl = crying
       ? 'https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExZjNhMjFkbzdpb2Vzb21jMWowbnR4aDJlNDBxa3puMnQweTZnejNzdCZlcD12MV9naWZzX3NlYXJjaCZjdD1n/3ov9ka1OzbTGjQtCXC/giphy.gif'
@@ -723,7 +692,7 @@ function renderCardInto(mountId, data) {
     <div style="min-height:100vh;background:#fdf2f4">
       <nav class="tab-nav">
         ${['greetings','gifts','flowers','letter'].map(t =>
-          `<button class="tab-btn ${activeTab===t?'active':''}" onclick="switchTab('${t}')">${t.charAt(0).toUpperCase()+t.slice(1)}</button>`
+          `<button class="tab-btn ${activeTab===t?'active':''}" onclick="switchTab('${t}')">${TAB_LABELS[t]}</button>`
         ).join('')}
       </nav>
       <div style="padding:32px 20px;max-width:820px;margin:0 auto">
@@ -758,7 +727,7 @@ function renderCardInto(mountId, data) {
           </div>`).join('')}
         </div>
 
-        <!-- FLOWERS -->
+        <!-- BOUQUET -->
         <div id="sec-flowers" style="display:${activeTab==='flowers'?'block':'none'}" class="fade-in">
           <div class="card p-6 text-center mb-6" style="position:relative;overflow:hidden">
             <div style="position:absolute;top:0;left:10%;font-size:18px" class="petal">🌸</div>
@@ -766,9 +735,13 @@ function renderCardInto(mountId, data) {
             <div style="position:absolute;top:0;left:60%;font-size:20px" class="petal">🌸</div>
             <div style="position:absolute;top:0;left:85%;font-size:16px" class="petal">🌸</div>
             <div class="font-dancing" style="font-size:28px;color:#1a0f0a;margin-bottom:6px">A Bouquet, Just For You</div>
-            <div style="display:flex;justify-content:center">${bouquetSVG}</div>
-            <p class="font-caveat" style="font-size:18px;color:#5a1f33;line-height:1.6;max-width:480px;margin:10px auto 0">
-              Every flower in here is a reason I'm grateful for you, ${data.recipient}. 🌹
+            <div style="display:flex;justify-content:center">
+              <img src="https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExemdncHphaXN5Z2Rqc3IxeXBhZ29ub2hmc2hhcjZqYWZrd2F1ZTVpMSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/a39kqrdmasEaQ/giphy.gif"
+                   alt="A vase overflowing with lilies, roses, and delphiniums with butterflies resting among the petals"
+                   style="max-width:100%;width:340px;border-radius:14px;box-shadow:0 8px 24px rgba(184,59,94,0.18)" />
+            </div>
+            <p class="font-caveat" style="font-size:18px;color:#5a1f33;line-height:1.6;max-width:480px;margin:14px auto 0">
+              A whole bouquet, painted just for this moment — soft pink lilies, blush roses, and sprigs of violet delphinium spilling out of the vase, with butterflies too enchanted to leave. That's what being with you feels like, ${data.recipient}: something that took its time to bloom, and turned out even more beautiful than I imagined. 🦋🌹
             </p>
           </div>
           <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px">
