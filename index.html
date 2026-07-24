@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>For Her 💌</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=Caveat:wght@400;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Inter', sans-serif; background: #fdf2f4; min-height: 100vh; }
+
+  .font-dancing { font-family: 'Dancing Script', cursive; }
+  .font-caveat  { font-family: 'Caveat', cursive; }
+
+  /* PAGE SYSTEM */
+  .page { display: none; min-height: 100vh; }
+  .page.active { display: flex; flex-direction: column; }
+
+  /* CAT ANIMATIONS */
+  @keyframes catBounce  { 0%,100%{transform:translateY(0) rotate(-3deg)} 50%{transform:translateY(-12px) rotate(3deg)} }
+  @keyframes waveL      { 0%,100%{transform:rotate(25deg)} 50%{transform:rotate(-25deg)} }
+  @keyframes waveR      { 0%,100%{transform:rotate(-25deg)} 50%{transform:rotate(25deg)} }
+  @keyframes blink      { 0%,88%,100%{transform:scaleY(1)} 93%{transform:scaleY(0.08)} }
+  @keyframes floatHeart { 0%{opacity:0;transform:translateX(-50%) translateY(0)} 40%{opacity:1} 100%{opacity:0;transform:translateX(-50%) translateY(-22px)} }
+  @keyframes sadShake   { 0%,100%{transform:rotate(-2deg)} 50%{transform:rotate(2deg)} }
+  @keyframes tearDrop   { 0%{opacity:1;transform:translateY(0)} 100%{opacity:0;transform:translateY(14px)} }
+  @keyframes noteSway   { 0%,100%{transform:rotate(-6deg) scale(1)} 50%{transform:rotate(6deg) scale(1.12)} }
+  @keyframes confBounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-9px)} }
+  @keyframes cursor     { 0%,100%{opacity:1} 50%{opacity:0} }
+  @keyframes fadeIn     { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+  @keyframes shimmer    { 0%{background-position:200% center} 100%{background-position:-200% center} }
+  @keyframes pulse      { 0%,100%{transform:scale(1)} 50%{transform:scale(1.06)} }
+  @keyframes petalFall  { 0%{transform:translateY(-10px) rotate(0deg);opacity:0} 10%{opacity:1} 100%{transform:translateY(120px) rotate(360deg);opacity:0} }
+  @keyframes spin       { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+
+  .cat-bounce   { animation: catBounce 1s ease-in-out infinite; }
+  .cat-sad      { animation: sadShake 2s ease-in-out infinite; }
+  .wave-l       { animation: waveL 0.9s ease-in-out infinite; transform-origin: top center; }
+  .wave-r       { animation: waveR 0.9s ease-in-out infinite; transform-origin: top center; }
+  .blink        { animation: blink 3.5s infinite; }
+  .float-heart  { animation: floatHeart 1.6s ease-in-out infinite; }
+  .tear-l       { animation: tearDrop 1s ease-in infinite; }
+  .tear-r       { animation: tearDrop 1s ease-in infinite 0.55s; }
+  .note-sway    { animation: noteSway 2s ease-in-out infinite; }
+  .fade-in      { animation: fadeIn 0.45s ease both; }
+  .cursor-blink { animation: cursor 0.75s step-end infinite; }
+  .pulse-btn    { animation: pulse 2s ease-in-out infinite; }
+  .petal        { animation: petalFall 3s linear infinite; }
+  .spin         { animation: spin 0.8s linear infinite; }
+
+  /* WATERMARK */
+  .watermark-wrap {
+    position: fixed; inset: 0; pointer-events: none; z-index: 9999;
+    display: flex; flex-direction: column; justify-content: space-around; overflow: hidden;
+  }
+  .watermark-row {
+    display: flex; gap: 100px; white-space: nowrap;
+    font-family: 'Inter', sans-serif; font-weight: 700;
+    font-size: 17px; letter-spacing: 5px; color: #b83b5e; opacity: 0.11;
+  }
+  .watermark-row:nth-child(odd) { transform: rotate(-22deg) translateX(-60px); }
+  .watermark-row:nth-child(even){ transform: rotate(-22deg) translateX(60px); }
+
+  /* BUTTONS */
+  .btn-primary {
+    padding: 12px 32px; border-radius: 30px; font-size: 13px;
+    font-weight: 600; letter-spacing: 2px; text-transform: uppercase;
+    cursor: pointer; border: 2.5px solid #b83b5e;
+    background: #b83b5e; color: #fff;
+    font-family: 'Inter', sans-serif;
+    transition: background 0.2s, transform 0.15s;
+  }
+  .btn-primary:hover { background: #93304c; transform: scale(1.03); }
+  .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+  .btn-outline {
+    padding: 12px 32px; border-radius: 30px; font-size: 13px;
+    font-weight: 600; letter-spacing: 2px; text-transform: uppercase;
+    cursor: pointer; border: 2.5px solid #b83b5e;
+    background: transparent; color: #b83b5e;
+    font-family: 'Inter', sans-serif;
+    transition: background 0.2s, color 0.2s, transform 0.15s;
+  }
+  .btn-outline:hover { background: #b83b5e; color: #fff; transform: scale(1.03); }
+
+  /* TABS */
+  .tab-nav { display:flex; flex-wrap:wrap; justify-content:center; border-bottom:1.5px solid #f0c4ce; background:#fdf2f4; position:sticky; top:0; z-index:10; }
+  .tab-btn {
+    padding: 10px 20px; background: none; border: none; border-bottom: 2.5px solid transparent;
+    color: #b8718a; font-size: 13px; cursor: pointer; font-family: 'Inter', sans-serif;
+    transition: color 0.2s, border-color 0.2s;
+  }
+  .tab-btn.active, .tab-btn:hover { color: #5a1f33; border-bottom-color: #b83b5e; }
+
+  /* CARDS */
+  .card { background:#fffaf9; border:1.5px solid #f0c4ce; border-radius:16px; }
+
+  /* MODAL */
+  .modal-bg { position:fixed; inset:0; background:rgba(0,0,0,0.55); z-index:1000; display:flex; align-items:center; justify-content:center; padding:20px; }
+  .modal-box { background:#fffaf9; border:1.5px solid #f0c4ce; border-radius:20px; width:100%; max-width:420px; padding:36px 32px; position:relative; font-family:'Inter',sans-serif; }
+
+  /* INPUTS */
+  .inp {
+    width:100%; padding:10px 14px; border-radius:10px;
+    border:1.5px solid #f0c4ce; background:#fffdfc;
+    font-size:14px; color:#1a0f0a; outline:none;
+    font-family:'Inter',sans-serif; transition:border-color 0.2s;
+  }
+  .inp:focus { border-color: #b83b5e; }
+
+  /* GIFT FLIP */
+  .gift-inner { transition: transform 0.5s; transform-style: preserve-3d; }
+  .gift-front, .gift-back { backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+  .gift-back { transform: rotateY(180deg); }
+
+  /* SHARE BANNER */
+  .share-banner { background:#2e7d32; color:#fff; padding:14px 20px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; font-family:'Inter',sans-serif; }
+
+  /* LETTER PAPER */
+  .letter-paper {
+    background: repeating-linear-gradient(#fffdfc, #fffdfc 28px, #f5dde3 28px, #f5dde3 29px);
+    line-height: 29px;
+  }
+
+  /* SHIMMER */
+  .shimmer-link {
+    background: linear-gradient(90deg, #b83b5e, #e0607e, #f8a5c2, #e0607e, #b83b5e);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: shimmer 2s linear infinite;
+    font-weight: 700;
+  }
+
+  /* LOADING SCREEN */
+  #pg-loading {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    background: #fdf2f4;
+    flex-direction: column;
+    gap: 16px;
+  }
+  #pg-loading.active { display: flex; }
+
+  /* scrollbar */
+  ::-webkit-scrollbar { width:6px; }
+  ::-webkit-scrollbar-track { background:#fdf2f4; }
+  ::-webkit-scrollbar-thumb { background:#f0c4ce; border-radius:3px; }
+</style>
+</head>
+<body>
+
+<!-- LOADING SCREEN -->
+<div id="pg-loading">
+  <div style="font-size:48px">💌</div>
+  <div class="font-dancing" style="font-size:32px;color:#1a0f0a">Loading your card...</div>
+  <div style="width:36px;height:36px;border:3px solid #f0c4ce;border-top-color:#b83b5e;border-radius:50%" class="spin"></div>
+</div>
+
+
+<!-- PAGE 1 — FORM -->
+<div class="page" id="pg-form">
+  <div class="flex items-center justify-center min-h-screen p-6">
+    <div class="card w-full max-w-lg p-10 fade-in">
+      <div class="mb-8">
+        <div class="font-dancing text-5xl text-[#1a0f0a] leading-tight mb-1">Make Her Feel Special 💌</div>
+        <p class="text-[#b8718a] text-sm mt-2">Fill in the details below, preview your card, then pay ₹99 to get a shareable link.</p>
+      </div>
+      <div class="space-y-5">
+        <div>
+          <label class="block text-xs font-semibold text-[#8a4a5c] uppercase tracking-wider mb-2">Her Name *</label>
+          <input id="f-recipient" class="inp" placeholder="e.g. Priya" />
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-[#8a4a5c] uppercase tracking-wider mb-2">Your Name *</label>
+          <input id="f-sender" class="inp" placeholder="e.g. Rohan" />
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-[#8a4a5c] uppercase tracking-wider mb-2">Greeting Message</label>
+          <textarea id="f-greeting" class="inp" rows="3" style="resize:vertical">You make every day brighter just by being in it. I love you. 💕</textarea>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-[#8a4a5c] uppercase tracking-wider mb-2">Song URL <span class="text-[#cda5ae] normal-case font-normal">(YouTube / Spotify)</span></label>
+          <input id="f-song" class="inp" placeholder="https://open.spotify.com/track/..." />
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-[#8a4a5c] uppercase tracking-wider mb-2">Personal Letter</label>
+          <textarea id="f-letter" class="inp" rows="6" style="resize:vertical">There are people in this world who make everything better just by existing — and you are one of them.
+
+I don't always find the right words, but today I want you to know that you are seen, appreciated, and deeply loved.
+
+I love you, from the bottom of my heart.</textarea>
+        </div>
+        <div id="form-err" class="text-[#c62828] text-sm hidden">Please fill in both names.</div>
+        <button class="btn-primary w-full mt-2 pulse-btn" onclick="gotoPreview()">Preview My Card →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- PAGE 2 — PREVIEW -->
+<div class="page" id="pg-preview">
+  <div class="flex items-center justify-between flex-wrap gap-3 px-5 py-3 bg-[#fffaf9] border-b border-[#f0c4ce] sticky top-0 z-20">
+    <div>
+      <div class="text-[10px] text-[#b8718a] uppercase tracking-widest">Preview mode</div>
+      <div class="text-sm text-[#5a1f33] font-medium">This is how the card will look ✨</div>
+    </div>
+    <div class="flex gap-2">
+      <button class="btn-outline text-xs px-4 py-2" onclick="showPage('pg-form')">← Edit</button>
+      <button class="btn-primary text-xs px-4 py-2" onclick="openPayModal()">🔗 Generate Link — ₹99</button>
+    </div>
+  </div>
+  <div id="share-banner" class="share-banner hidden">
+    <span class="text-sm">🎉 Your link is ready! Share it with her.</span>
+    <div class="flex gap-2 items-center">
+      <code id="share-url-text" class="text-xs bg-white/20 px-2 py-1 rounded"></code>
+      <button onclick="copyLink()" class="bg-white text-[#2e7d32] text-xs font-bold px-3 py-1 rounded-lg">Copy</button>
+    </div>
+  </div>
+  <div class="watermark-wrap" id="watermark">
+    <div class="watermark-row"><span>PREVIEW •</span><span>PREVIEW •</span><span>PREVIEW •</span></div>
+    <div class="watermark-row"><span>PREVIEW •</span><span>PREVIEW •</span><span>PREVIEW •</span></div>
+    <div class="watermark-row"><span>PREVIEW •</span><span>PREVIEW •</span><span>PREVIEW •</span></div>
+    <div class="watermark-row"><span>PREVIEW •</span><span>PREVIEW •</span><span>PREVIEW •</span></div>
+    <div class="watermark-row"><span>PREVIEW •</span><span>PREVIEW •</span><span>PREVIEW •</span></div>
+    <div class="watermark-row"><span>PREVIEW •</span><span>PREVIEW •</span><span>PREVIEW •</span></div>
+  </div>
+  <div id="preview-card-mount"></div>
+</div>
+
+
+<!-- PAGE 3 — LIVE CARD -->
+<div class="page" id="pg-card">
+  <div id="card-mount"></div>
+</div>
+
+
+<!-- PAYMENT MODAL -->
+<div class="modal-bg hidden" id="pay-modal">
+  <div class="modal-box fade-in">
+    <button onclick="closePayModal()" class="absolute top-4 right-4 text-2xl text-[#b8718a] bg-none border-none cursor-pointer leading-none">×</button>
+    <div class="mb-6">
+      <div class="font-dancing text-3xl text-[#1a0f0a] mb-1">Generate Shareable Link 🔗</div>
+      <p class="text-xs text-[#b8718a]">Pay once — she gets a beautiful surprise, forever.</p>
+    </div>
+    <div class="card px-5 py-4 mb-5 flex justify-between items-center">
+      <div>
+        <div class="text-sm text-[#b8718a]">Love Card</div>
+        <div class="text-xs text-[#cda5ae] mt-0.5">Shareable link • Hosted forever</div>
+      </div>
+      <div class="text-right">
+        <div id="original-price" class="text-xs text-[#cda5ae] line-through hidden">₹99</div>
+        <div id="final-price" class="text-2xl font-bold text-[#b83b5e]">₹99</div>
+      </div>
+    </div>
+    <div class="mb-5">
+      <label class="block text-xs font-semibold text-[#8a4a5c] uppercase tracking-wider mb-2">Coupon Code</label>
+      <div class="flex gap-2">
+        <input id="coupon-inp" class="inp flex-1" placeholder=" Optional " style="text-transform:uppercase"
+          oninput="this.value=this.value.toUpperCase()" onkeydown="if(event.key==='Enter')applyCoupon()" />
+        <button onclick="applyCoupon()" class="btn-outline text-xs px-4 py-2 whitespace-nowrap">Apply</button>
+      </div>
+      <div id="coupon-msg" class="text-xs mt-2 font-medium hidden"></div>
+    </div>
+    <div id="pay-err" class="text-[#c62828] text-sm mb-3 hidden"></div>
+    <button id="pay-btn" class="btn-primary w-full" onclick="handlePay()">Pay ₹99 &amp; Get Link</button>
+    <div class="text-center text-[10px] text-[#cda5ae] mt-4">Secured by Razorpay · UPI, Cards, Netbanking</div>
+  </div>
+</div>
+
+
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+<script>
+const CONFIG = {
+  RZP_KEY: 'rzp_live_SmizRaPApu81ZS',
+  SUPABASE_URL: 'https://iliakhaufgpjjtwamisn.supabase.co',
+  SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlsaWFraGF1Zmdwamp0d2FtaXNuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA4NTU0NTMsImV4cCI6MjA5NjQzMTQ1M30.nim8jt-cUhb3IIWjnd0FC3NF6xS_gg8RelBBJG1bIno',
+  SUPABASE_TABLE: 'cards',
+  COUPONS: {
+    'LOVE':  { amount: 7900, label: '₹20 off — you pay ₹79' },
+    'FEIN1': { amount: 100,  label: '₹98 off — you pay ₹1'  },
+    'FEIN':  { amount: 0,    label: '100% off — FREE 🎉'    },
+  },
+  BASE: 9900,
+};
+
+let state = {
+  recipient: '', sender: '', greeting: '', song: '', letter: '',
+  finalAmount: CONFIG.BASE, couponApplied: null, shareUrl: null,
+};
+
+/* ── PAGE ROUTER ── */
+function showLoading() {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('pg-loading').classList.add('active');
+}
+
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('pg-loading').classList.remove('active');
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+/* ── SUPABASE ── */
+async function saveCardToSupabase(cardData) {
+  const id = crypto.randomUUID ? crypto.randomUUID() : 'id-' + Date.now() + '-' + Math.random().toString(36).slice(2);
+  const res = await fetch(`${CONFIG.SUPABASE_URL}/rest/v1/${CONFIG.SUPABASE_TABLE}`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'apikey': CONFIG.SUPABASE_ANON_KEY,
+      'Authorization': `Bearer ${CONFIG.SUPABASE_ANON_KEY}`,
+      'Prefer': 'return=minimal',
+    },
+    body: JSON.stringify({ id, data: cardData }),
+  });
+  if (!res.ok) { const t = await res.text().catch(()=>''); throw new Error('Save failed: ' + res.status + ' ' + t); }
+  return id;
+}
+
+async function loadCardFromSupabase(id) {
+  const res = await fetch(`${CONFIG.SUPABASE_URL}/rest/v1/${CONFIG.SUPABASE_TABLE}?id=eq.${encodeURIComponent(id)}&select=data`, {
+    headers: { 'apikey': CONFIG.SUPABASE_ANON_KEY, 'Authorization': `Bearer ${CONFIG.SUPABASE_ANON_KEY}` },
+  });
+  if (!res.ok) throw new Error('Load failed: ' + res.status);
+  const rows = await res.json();
+  if (!rows || !rows.length) throw new Error('Card not found');
+  return rows[0].data;
+}
+
+async function saveCardToSupabaseWithRetry(cardData, attempts = 4) {
+  let lastErr;
+  for (let i = 0; i < attempts; i++) {
+    try { return await saveCardToSupabase(cardData); }
+    catch (e) { lastErr = e; await new Promise(r => setTimeout(r, 1000 * Math.pow(2, i))); }
+  }
+  throw lastErr;
+}
+
+/* ── ON LOAD ── */
+window.addEventListener('load', async () => {
+  const params = new URLSearchParams(location.search);
+  const id = params.get('id');
+  const d  = params.get('d');
+
+  if (id || d) {
+    // Show spinner immediately — prevents form flash
+    showLoading();
+
+    if (id) {
+      try {
+        const data = await loadCardFromSupabase(id);
+        renderCardInto('card-mount', data);
+        showPage('pg-card');
+      } catch (e) {
+        console.error(e);
+        showPage('pg-form');
+      }
+    } else {
+      try {
+        const data = JSON.parse(atob(d));
+        renderCardInto('card-mount', data);
+        showPage('pg-card');
+      } catch {
+        showPage('pg-form');
+      }
+    }
+    return;
+  }
+
+  // No card param — normal flow
+  showPage('pg-form');
+  recoverPendingPayment();
+});
+
+/* ── FORM → PREVIEW ── */
+function gotoPreview() {
+  const r = document.getElementById('f-recipient').value.trim();
+  const s = document.getElementById('f-sender').value.trim();
+  if (!r || !s) { document.getElementById('form-err').classList.remove('hidden'); return; }
+  document.getElementById('form-err').classList.add('hidden');
+  state.recipient = r;
+  state.sender    = s;
+  state.greeting  = document.getElementById('f-greeting').value.trim();
+  state.song      = document.getElementById('f-song').value.trim();
+  state.letter    = document.getElementById('f-letter').value.trim();
+  renderCardInto('preview-card-mount', state);
+  showPage('pg-preview');
+}
+
+/* ── MODAL ── */
+function openPayModal() {
+  state.finalAmount = CONFIG.BASE;
+  state.couponApplied = null;
+  document.getElementById('coupon-inp').value = '';
+  document.getElementById('coupon-msg').classList.add('hidden');
+  document.getElementById('pay-err').classList.add('hidden');
+  document.getElementById('original-price').classList.add('hidden');
+  document.getElementById('final-price').textContent = '₹99';
+  document.getElementById('pay-btn').disabled = false;
+  document.getElementById('pay-btn').textContent = 'Pay ₹99 & Get Link';
+  document.getElementById('pay-modal').classList.remove('hidden');
+}
+function closePayModal() { document.getElementById('pay-modal').classList.add('hidden'); }
+
+/* ── COUPON ── */
+function applyCoupon() {
+  const code = document.getElementById('coupon-inp').value.trim().toUpperCase();
+  const msg  = document.getElementById('coupon-msg');
+  const fp   = document.getElementById('final-price');
+  const op   = document.getElementById('original-price');
+  const btn  = document.getElementById('pay-btn');
+  msg.classList.remove('hidden');
+
+  if (!code) { msg.textContent = ''; msg.classList.add('hidden'); return; }
+
+  const coupon = CONFIG.COUPONS[code];
+  if (!coupon) {
+    msg.textContent = '✗ Invalid coupon code'; msg.style.color = '#c62828';
+    state.finalAmount = CONFIG.BASE; state.couponApplied = null;
+    op.classList.add('hidden'); fp.textContent = '₹99';
+    btn.textContent = 'Pay ₹99 & Get Link';
+    return;
+  }
+
+  state.finalAmount = coupon.amount;
+  state.couponApplied = code;
+  msg.textContent = '✓ ' + coupon.label; msg.style.color = '#2e7d32';
+
+  const display = coupon.amount === 0 ? 'FREE' : '₹' + (coupon.amount / 100);
+  fp.textContent = display;
+  if (coupon.amount < CONFIG.BASE) op.classList.remove('hidden');
+  btn.textContent = coupon.amount === 0 ? 'Get Link for FREE' : `Pay ${display} & Get Link`;
+}
+
+/* ── PAY ── */
+function handlePay() {
+  document.getElementById('pay-err').classList.add('hidden');
+  const cardData = {
+    recipient: state.recipient, sender: state.sender,
+    greeting: state.greeting, song: state.song, letter: state.letter,
+  };
+
+  if (state.finalAmount === 0) {
+    onPaymentSuccess('free_' + Math.random().toString(36).slice(2), cardData);
+    return;
+  }
+
+  const options = {
+    key: CONFIG.RZP_KEY, amount: state.finalAmount, currency: 'INR',
+    name: 'For Her', description: `Love card for ${state.recipient}`,
+    notes: { coupon: state.couponApplied || '', recipient: state.recipient, sender: state.sender },
+    theme: { color: '#b83b5e' },
+    handler: function(response) {
+      try {
+        localStorage.setItem('pendingCard_' + response.razorpay_payment_id, JSON.stringify(cardData));
+        localStorage.setItem('lastPendingPaymentId', response.razorpay_payment_id);
+      } catch(e) {}
+      onPaymentSuccess(response.razorpay_payment_id, cardData);
+    },
+  };
+  new Razorpay(options).open();
+}
+
+/* ── POST PAYMENT ── */
+async function onPaymentSuccess(paymentId, cardData) {
+  const btn = document.getElementById('pay-btn');
+  const err = document.getElementById('pay-err');
+  err.classList.add('hidden');
+  btn.disabled = true;
+  btn.textContent = 'Generating your link...';
+
+  try {
+    const id  = await saveCardToSupabaseWithRetry(cardData);
+    const url = `${location.origin}${location.pathname}?id=${id}`;
+    state.shareUrl = url;
+
+    try {
+      localStorage.removeItem('pendingCard_' + paymentId);
+      if (localStorage.getItem('lastPendingPaymentId') === paymentId) localStorage.removeItem('lastPendingPaymentId');
+    } catch(e) {}
+
+    closePayModal();
+    const wm = document.getElementById('watermark');
+    if (wm) wm.style.display = 'none';
+    document.querySelector('#share-banner span').textContent = '🎉 Your link is ready! Share it with her.';
+    document.getElementById('share-url-text').textContent = url.length > 60 ? url.slice(0, 57) + '...' : url;
+    document.getElementById('share-banner').classList.remove('hidden');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  } catch (e) {
+    console.error(e);
+    err.innerHTML = 'Payment succeeded, but saving failed.<br>' +
+      '<button id="retry-save-btn" class="btn-primary" style="margin-top:10px">Retry Generating Link</button><br>' +
+      `<span style="font-size:11px;color:#cda5ae">Contact support with payment id: ${paymentId}</span>`;
+    err.classList.remove('hidden');
+    btn.disabled = false;
+    btn.textContent = 'Retry — Get Link';
+    const rb = document.getElementById('retry-save-btn');
+    if (rb) rb.onclick = () => onPaymentSuccess(paymentId, cardData);
+  }
+}
+
+/* ── RECOVERY ── */
+async function recoverPendingPayment() {
+  try {
+    const lastId = localStorage.getItem('lastPendingPaymentId');
+    if (!lastId) return;
+    const raw = localStorage.getItem('pendingCard_' + lastId);
+    if (!raw) return;
+
+    const cardData = JSON.parse(raw);
+    state.recipient = cardData.recipient; state.sender = cardData.sender;
+    state.greeting = cardData.greeting; state.song = cardData.song; state.letter = cardData.letter;
+
+    renderCardInto('preview-card-mount', state);
+    showPage('pg-preview');
+
+    const banner = document.getElementById('share-banner');
+    banner.classList.remove('hidden');
+    banner.querySelector('span').textContent = '⏳ Recovering your previous payment — finishing link generation...';
+
+    const id  = await saveCardToSupabaseWithRetry(cardData);
+    const url = `${location.origin}${location.pathname}?id=${id}`;
+    state.shareUrl = url;
+
+    localStorage.removeItem('pendingCard_' + lastId);
+    localStorage.removeItem('lastPendingPaymentId');
+
+    const wm = document.getElementById('watermark');
+    if (wm) wm.style.display = 'none';
+    banner.querySelector('span').textContent = '🎉 Your link is ready! Share it with her.';
+    document.getElementById('share-url-text').textContent = url.length > 60 ? url.slice(0, 57) + '...' : url;
+  } catch (e) { console.error('Recovery failed:', e); }
+}
+
+function copyLink() {
+  if (!state.shareUrl) return;
+  navigator.clipboard.writeText(state.shareUrl).then(() => {
+    const btn = document.querySelector('#share-banner button');
+    const old = btn.textContent;
+    btn.textContent = 'Copied!';
+    setTimeout(() => btn.textContent = old, 2000);
+  });
+}
+
+
+/* ══════════════════════════════════════════════════════════
+   CARD RENDERER
+══════════════════════════════════════════════════════════ */
+function renderCardInto(mountId, data) {
+  const mount = document.getElementById(mountId);
+  if (!mount) return;
+
+  let cardPage     = 'landing';
+  let activeTab    = 'greetings';
+  let flippedGifts = new Set();
+
+  const flowers = [
+    { e:'🌹', n:'Red Rose',       m:`"You're as beautiful as freshly bloomed roses, ${data.recipient}."` },
+    { e:'🌷', n:'Tulip',          m:`"Spending time with you is like receiving a surprise bouquet every day."` },
+    { e:'🌸', n:'Cherry Blossom', m:`"Being around you feels like walking through a blooming spring."` },
+    { e:'💐', n:'Grand Bouquet',  m:`"This whole bouquet couldn't hold all the good things I think of you, ${data.recipient}."` },
+  ];
+  const gifts = [
+    { e:'🎁', r:'🌙', msg:'A night under the stars, just for the two of us.' },
+    { e:'🎀', r:'☕', msg:'Your favourite drink, your favourite book, a perfect afternoon.' },
+    { e:'💝', r:'🫂', msg:'A thousand hugs, redeemable anytime, forever.' },
+    { e:'✨', r:'🗺️', msg:'One surprise date — destination chosen by you.' },
+  ];
+
+  function re() { mount.innerHTML = ''; render(); }
+  function render() {
+    if (cardPage === 'landing') renderLanding();
+    else if (cardPage === 'decline') renderDecline();
+    else renderApp();
+  }
+
+  const flowerSVG = `<svg width="190" height="270" viewBox="0 0 200 280" xmlns="http://www.w3.org/2000/svg">
+    <g transform="translate(10,20)">
+      <line x1="80" y1="260" x2="70" y2="140" stroke="#7a9a5a" stroke-width="3" stroke-linecap="round"/>
+      <line x1="70" y1="200" x2="40" y2="170" stroke="#7a9a5a" stroke-width="2" stroke-linecap="round"/>
+      <ellipse cx="30" cy="165" rx="22" ry="12" fill="#9bd86a" transform="rotate(-30 30 165)"/>
+      <line x1="70" y1="170" x2="100" y2="150" stroke="#7a9a5a" stroke-width="2" stroke-linecap="round"/>
+      <ellipse cx="108" cy="147" rx="22" ry="10" fill="#9bd86a" transform="rotate(20 108 147)"/>
+      <circle cx="70" cy="115" r="32" fill="#d6336c" opacity=".9"/>
+      <circle cx="70" cy="115" r="20" fill="#f06595"/>
+      <ellipse cx="50" cy="95" rx="14" ry="22" fill="#d6336c" transform="rotate(-25 50 95)"/>
+      <ellipse cx="90" cy="95" rx="14" ry="22" fill="#d6336c" transform="rotate(25 90 95)"/>
+      <ellipse cx="55" cy="130" rx="14" ry="22" fill="#d6336c" transform="rotate(15 55 130)"/>
+      <ellipse cx="85" cy="130" rx="14" ry="22" fill="#d6336c" transform="rotate(-15 85 130)"/>
+      <circle cx="70" cy="115" r="10" fill="#ffd43b"/>
+    </g>
+    <g transform="translate(95,75)">
+      <line x1="38" y1="200" x2="33" y2="90" stroke="#7a9a5a" stroke-width="3" stroke-linecap="round"/>
+      <ellipse cx="14" cy="145" rx="20" ry="10" fill="#9bd86a" transform="rotate(-25 14 145)"/>
+      <circle cx="33" cy="65" r="26" fill="#f8c9d4" opacity=".9"/>
+      <ellipse rx="12" ry="20" fill="#f8c9d4" transform="translate(33,65) rotate(-20)"/>
+      <ellipse rx="12" ry="20" fill="#f8c9d4" transform="translate(33,65) rotate(20)"/>
+      <ellipse rx="12" ry="20" fill="#f8c9d4" transform="translate(33,65) rotate(115)"/>
+      <ellipse rx="12" ry="20" fill="#f8c9d4" transform="translate(33,65) rotate(155)"/>
+      <circle cx="33" cy="65" r="9" fill="#ffe066"/>
+    </g>
+  </svg>`;
+
+  const bouquetSVG = `<svg width="220" height="260" viewBox="0 0 220 260" xmlns="http://www.w3.org/2000/svg">
+    <path d="M70 260 L110 140 L150 260 Z" fill="#fdf2f4" stroke="#f0c4ce" stroke-width="2"/>
+    <path d="M85 260 L110 150 L135 260 Z" fill="#f8c9d4" opacity="0.6"/>
+    <line x1="110" y1="150" x2="75" y2="70" stroke="#7a9a5a" stroke-width="3" stroke-linecap="round"/>
+    <line x1="110" y1="150" x2="110" y2="55" stroke="#7a9a5a" stroke-width="3" stroke-linecap="round"/>
+    <line x1="110" y1="150" x2="145" y2="70" stroke="#7a9a5a" stroke-width="3" stroke-linecap="round"/>
+    <line x1="110" y1="150" x2="55" y2="100" stroke="#7a9a5a" stroke-width="3" stroke-linecap="round"/>
+    <line x1="110" y1="150" x2="165" y2="100" stroke="#7a9a5a" stroke-width="3" stroke-linecap="round"/>
+    <ellipse cx="60" cy="120" rx="20" ry="10" fill="#9bd86a" transform="rotate(-30 60 120)"/>
+    <ellipse cx="160" cy="120" rx="20" ry="10" fill="#9bd86a" transform="rotate(30 160 120)"/>
+    <g transform="translate(75,70)"><circle r="26" fill="#d6336c" opacity="0.9"/><circle r="16" fill="#f06595"/>
+      <ellipse rx="12" ry="18" fill="#d6336c" transform="rotate(-25)"/><ellipse rx="12" ry="18" fill="#d6336c" transform="rotate(25)"/>
+      <ellipse rx="12" ry="18" fill="#d6336c" transform="rotate(115)"/><ellipse rx="12" ry="18" fill="#d6336c" transform="rotate(155)"/>
+      <circle r="8" fill="#ffd43b"/></g>
+    <g transform="translate(110,55)"><circle r="32" fill="#b83b5e"/><circle r="20" fill="#e0607e"/>
+      <ellipse rx="15" ry="24" fill="#b83b5e" transform="rotate(-25)"/><ellipse rx="15" ry="24" fill="#b83b5e" transform="rotate(25)"/>
+      <ellipse rx="15" ry="24" fill="#b83b5e" transform="rotate(115)"/><ellipse rx="15" ry="24" fill="#b83b5e" transform="rotate(155)"/>
+      <circle r="10" fill="#ffe066"/></g>
+    <g transform="translate(145,70)"><circle r="26" fill="#d6336c" opacity="0.9"/><circle r="16" fill="#f06595"/>
+      <ellipse rx="12" ry="18" fill="#d6336c" transform="rotate(-25)"/><ellipse rx="12" ry="18" fill="#d6336c" transform="rotate(25)"/>
+      <ellipse rx="12" ry="18" fill="#d6336c" transform="rotate(115)"/><ellipse rx="12" ry="18" fill="#d6336c" transform="rotate(155)"/>
+      <circle r="8" fill="#ffd43b"/></g>
+    <g transform="translate(55,100)"><circle r="18" fill="#f8c9d4"/>
+      <ellipse rx="9" ry="14" fill="#f8c9d4" transform="rotate(-20)"/><ellipse rx="9" ry="14" fill="#f8c9d4" transform="rotate(20)"/>
+      <ellipse rx="9" ry="14" fill="#f8c9d4" transform="rotate(110)"/><ellipse rx="9" ry="14" fill="#f8c9d4" transform="rotate(150)"/>
+      <circle r="6" fill="#ffe066"/></g>
+    <g transform="translate(165,100)"><circle r="18" fill="#f8c9d4"/>
+      <ellipse rx="9" ry="14" fill="#f8c9d4" transform="rotate(-20)"/><ellipse rx="9" ry="14" fill="#f8c9d4" transform="rotate(20)"/>
+      <ellipse rx="9" ry="14" fill="#f8c9d4" transform="rotate(110)"/><ellipse rx="9" ry="14" fill="#f8c9d4" transform="rotate(150)"/>
+      <circle r="6" fill="#ffe066"/></g>
+    <path d="M95 155 Q110 175 125 155" fill="none" stroke="#b83b5e" stroke-width="4" stroke-linecap="round"/>
+  </svg>`;
+
+  function catHTML(crying = false) {
+    const gifUrl = crying
+      ? 'https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExZjNhMjFkbzdpb2Vzb21jMWowbnR4aDJlNDBxa3puMnQweTZnejNzdCZlcD12MV9naWZzX3NlYXJjaCZjdD1n/3ov9ka1OzbTGjQtCXC/giphy.gif'
+      : 'https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExcHE2dHd1N2J2anBkMmpkeDVqOWFpeDRja3ZjbG9iYWViejBqMTg0YyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/W8hVGGjOjV82Rh6Oyi/giphy.gif';
+    return `<div style="width:130px;height:130px;position:relative;display:inline-block;margin-bottom:10px">
+      <img src="${gifUrl}" alt="" style="width:100%;height:100%;object-fit:contain;border-radius:12px" />
+    </div>`;
+  }
+
+  function confetti() {
+    return ['#e0607e','#f8a5c2','#b83b5e','#ffd43b','#9bd86a'].map((c,i) =>
+      `<div style="width:10px;height:10px;border-radius:50%;background:${c};animation:confBounce .8s ease-in-out infinite;animation-delay:${i*.1}s"></div>`
+    ).join('');
+  }
+
+  function renderLanding() {
+    mount.innerHTML = `
+    <div class="min-h-screen flex flex-col items-center justify-center text-center relative overflow-hidden" style="background:#fdf2f4;padding:60px 24px">
+      <div style="position:absolute;left:0;bottom:0;pointer-events:none;z-index:1">${flowerSVG}</div>
+      <div style="position:absolute;right:0;bottom:0;pointer-events:none;z-index:1;transform:scaleX(-1)">${flowerSVG}</div>
+      <div style="position:relative;z-index:2">
+        ${catHTML(false)}
+        <div class="font-dancing" style="font-size:clamp(44px,9vw,74px);color:#1a0f0a;line-height:1;margin-bottom:4px">
+          Hey love<span class="cursor-blink" style="display:inline-block;width:3px;height:0.75em;background:#b83b5e;vertical-align:bottom;margin-left:2px"></span>
+        </div>
+        <p class="font-caveat" style="font-size:20px;color:#b8718a;margin:16px 0 32px">
+          I made something just for you, <strong>${data.recipient}</strong> — want to see it?
+        </p>
+        <div class="flex gap-4 justify-center flex-wrap">
+          <button class="btn-primary" onclick="cardNav('app')">YES PLEASE</button>
+          <button class="btn-outline" onclick="cardNav('decline')">NO THANKS</button>
+        </div>
+      </div>
+    </div>`;
+    bindCardNav();
+  }
+
+  function renderDecline() {
+    mount.innerHTML = `
+    <div class="min-h-screen flex flex-col items-center justify-center text-center relative overflow-hidden" style="background:#fdf2f4;padding:60px 24px">
+      <div style="position:absolute;left:0;bottom:0;pointer-events:none;z-index:1;opacity:0.5">${flowerSVG}</div>
+      <div style="position:absolute;right:0;bottom:0;pointer-events:none;z-index:1;transform:scaleX(-1);opacity:0.5">${flowerSVG}</div>
+      <div style="position:relative;z-index:2">
+        ${catHTML(true)}
+        <div class="font-dancing" style="font-size:clamp(30px,7vw,52px);color:#b83b5e;line-height:1.2;margin:16px 0 28px">
+          I promise you'll like it :(
+        </div>
+        <button class="btn-primary" onclick="cardNav('landing')">TRY AGAIN</button>
+      </div>
+    </div>`;
+    bindCardNav();
+  }
+
+  function renderApp() {
+    mount.innerHTML = `
+    <div style="min-height:100vh;background:#fdf2f4">
+      <nav class="tab-nav">
+        ${['greetings','gifts','flowers','song','letter'].map(t =>
+          `<button class="tab-btn ${activeTab===t?'active':''}" onclick="switchTab('${t}')">${t.charAt(0).toUpperCase()+t.slice(1)}</button>`
+        ).join('')}
+      </nav>
+      <div style="padding:32px 20px;max-width:820px;margin:0 auto">
+
+        <!-- GREETINGS -->
+        <div id="sec-greetings" style="display:${activeTab==='greetings'?'block':'none'}" class="fade-in">
+          <div class="card p-8 text-center">
+            <div class="flex justify-center gap-2 mb-4">${confetti()}</div>
+            <div class="font-dancing" style="font-size:42px;color:#1a0f0a;margin-bottom:14px">For You, ${data.recipient} 💕</div>
+            <p class="font-caveat" style="font-size:20px;color:#5a1f33;line-height:1.7;max-width:520px;margin:0 auto">
+              ${(data.greeting||'You make every day brighter just by being in it. I love you. 💕').replace(/\n/g,'<br>')}
+            </p>
+            <div class="flex justify-center gap-2 mt-4">${confetti()}</div>
+            <div class="mt-6">${catHTML(false)}</div>
+          </div>
+        </div>
+
+        <!-- GIFTS -->
+        <div id="sec-gifts" style="display:${activeTab==='gifts'?'grid':'none'};grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px" class="fade-in">
+          ${gifts.map((g,i) => `
+          <div style="perspective:600px;min-height:160px;cursor:pointer" onclick="flipGift(${i})">
+            <div id="gift-inner-${i}" class="gift-inner" style="position:relative;min-height:160px">
+              <div class="gift-front card" style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px 16px;text-align:center;border-radius:14px">
+                <span style="font-size:44px;display:block;margin-bottom:10px">${g.e}</span>
+                <div class="font-dancing" style="font-size:20px;color:#1a0f0a">Tap to open!</div>
+              </div>
+              <div class="gift-back card" style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;text-align:center;border-radius:14px">
+                <span style="font-size:36px;margin-bottom:10px">${g.r}</span>
+                <p class="font-caveat" style="font-size:16px;color:#5a1f33;line-height:1.5">${g.msg}</p>
+              </div>
+            </div>
+          </div>`).join('')}
+        </div>
+
+        <!-- FLOWERS -->
+        <div id="sec-flowers" style="display:${activeTab==='flowers'?'block':'none'}" class="fade-in">
+          <div class="card p-6 text-center mb-6" style="position:relative;overflow:hidden">
+            <div style="position:absolute;top:0;left:10%;font-size:18px" class="petal">🌸</div>
+            <div style="position:absolute;top:0;left:35%;font-size:14px" class="petal">🌸</div>
+            <div style="position:absolute;top:0;left:60%;font-size:20px" class="petal">🌸</div>
+            <div style="position:absolute;top:0;left:85%;font-size:16px" class="petal">🌸</div>
+            <div class="font-dancing" style="font-size:28px;color:#1a0f0a;margin-bottom:6px">A Bouquet, Just For You</div>
+            <div style="display:flex;justify-content:center">${bouquetSVG}</div>
+            <p class="font-caveat" style="font-size:18px;color:#5a1f33;line-height:1.6;max-width:480px;margin:10px auto 0">
+              Every flower in here is a reason I'm grateful for you, ${data.recipient}. 🌹
+            </p>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px">
+            ${flowers.map(f => `
+            <div class="card p-5 text-center">
+              <span style="font-size:48px;display:block;margin-bottom:10px">${f.e}</span>
+              <div class="font-dancing" style="font-size:22px;color:#1a0f0a;margin-bottom:6px">${f.n}</div>
+              <div class="font-caveat" style="font-size:15px;color:#b8718a;line-height:1.5">${f.m}</div>
+            </div>`).join('')}
+          </div>
+        </div>
+
+        <!-- SONG -->
+        <div id="sec-song" style="display:${activeTab==='song'?'flex':'none'};justify-content:center" class="fade-in">
+          <div class="card p-8 text-center" style="max-width:480px;width:100%">
+            <span style="font-size:42px;display:block;margin-bottom:12px" class="note-sway">🎵</span>
+            <div class="font-dancing" style="font-size:28px;color:#1a0f0a;margin-bottom:8px">A Song for You</div>
+            <div id="song-embed-slot" style="margin-top:16px"></div>
+          </div>
+        </div>
+
+        <!-- LETTER -->
+        <div id="sec-letter" style="display:${activeTab==='letter'?'flex':'none'};justify-content:center" class="fade-in">
+          <div class="letter-paper" style="border:1.5px solid #f0c4ce;border-radius:6px;padding:48px 36px;max-width:560px;width:100%;box-shadow:2px 4px 0 #f0c4ce">
+            <div class="font-dancing" style="font-size:26px;color:#1a0f0a;margin-bottom:8px">Dear ${data.recipient},</div>
+            <div class="font-caveat" style="font-size:18px;color:#5a1f33;white-space:pre-wrap;line-height:29px">
+${data.letter||'You are someone truly special. I love you.'}
+            </div>
+            <div class="font-dancing" style="font-size:24px;color:#b83b5e;margin-top:20px;text-align:right">With love, ${data.sender} ♥</div>
+          </div>
+        </div>
+
+      </div>
+    </div>`;
+
+    bindCardNav();
+    flippedGifts.forEach(i => {
+      const el = document.getElementById(`gift-inner-${i}`);
+      if (el) el.style.transform = 'rotateY(180deg)';
+    });
+    if (activeTab === 'song') mountSongEmbed();
+  }
+
+  function bindCardNav() {
+    window.cardNav   = (p) => { cardPage = p; re(); };
+    window.switchTab = (t) => { activeTab = t; re(); };
+    window.flipGift  = (i) => {
+      flippedGifts.has(i) ? flippedGifts.delete(i) : flippedGifts.add(i);
+      const el = document.getElementById(`gift-inner-${i}`);
+      if (el) el.style.transform = flippedGifts.has(i) ? 'rotateY(180deg)' : '';
+    };
+  }
+
+
+  function mountSongEmbed() {
+    const slot = document.getElementById('song-embed-slot');
+    if (!slot || slot.dataset.loaded) return;
+    slot.dataset.loaded = '1';
+    if (!data.song) {
+      slot.innerHTML = `<p class="font-caveat" style="font-size:17px;color:#b8718a">Ask ${data.sender} which song they picked for you 🎶</p>`;
+      return;
+    }
+    if (data.song.includes('spotify')) {
+      slot.innerHTML = `<iframe src="${data.song.replace('open.spotify.com/track','open.spotify.com/embed/track')}" width="100%" height="80" style="border-radius:12px;border:none" allow="autoplay;clipboard-write;encrypted-media;fullscreen" loading="lazy"></iframe>`;
+    } else if (data.song.includes('youtu')) {
+      slot.innerHTML = `<iframe src="${data.song.replace('watch?v=','embed/').replace('youtu.be/','www.youtube.com/embed/')}" width="100%" height="200" style="border-radius:12px;border:none" allowfullscreen loading="lazy"></iframe>`;
+    } else {
+      slot.innerHTML = `<a href="${data.song}" target="_blank" style="color:#b83b5e;font-size:14px">🎵 Open Song</a>`;
+    }
+  }
+
+  render();
+}
+</script>
+</body>
+</html>
